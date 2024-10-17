@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,7 +19,8 @@ import utils.ImageManager;
 import utils.Sound;
 
 public class ReadyFrm extends JFrame {
-
+    
+    private BufferedImage backgroundImg;
     private BattleShipGrid grid;
     private List<Ship> ships;
     private JPanel pnMain;
@@ -32,6 +34,8 @@ public class ReadyFrm extends JFrame {
         setTitle("Battleship Game");
         setLayout(new BorderLayout());
         setSize(800, 700);
+        backgroundImg = ImageManager.getImage(ImageManager.READY_BACKGROUND_IMAGE);
+//        setContentPane(new CustomPanel());
         sound = new Sound();
         btnReturn = new JButton("Quay lại");
         btnReturn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -58,7 +62,6 @@ public class ReadyFrm extends JFrame {
         grid.setBounds(50, 50, 500, 500);
         pnMain.add(grid);
         grid.setLocation(this.getWidth() - grid.getWidth(), 5);
-//        System.out.println("Location of gird: " + grid.getX() + "-" + grid.getY());
         // Ship panel where ships are placed initially
         JPanel shipPanel = new JPanel();
         shipPanel.setLayout(null);
@@ -204,6 +207,15 @@ public class ReadyFrm extends JFrame {
         setSize(900, 700);
         setResizable(false);
         setVisible(true);
+    }
+    
+    private class CustomPanel extends javax.swing.JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);  // Calls the default painting of components
+            // Draw the background image
+            g.drawImage(backgroundImg, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 
 }

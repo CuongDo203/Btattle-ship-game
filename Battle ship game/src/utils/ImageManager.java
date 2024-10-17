@@ -19,6 +19,8 @@ public class ImageManager {
     public static final String SHIP_SIZE_3_1 = "destroyer.png";
     public static final String SHIP_SIZE_3_2 = "rescue ship.png";
     public static final String SHIP_SIZE_2 = "patrol boat.png";
+    public static final String READY_BACKGROUND_IMAGE = "water.jpg";
+    public static final String RANK_BACKGROUND_IMAGE = "rank.png";
     
     public static BufferedImage getImage(String filename) {
         BufferedImage img = null;

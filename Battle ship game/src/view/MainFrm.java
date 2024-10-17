@@ -14,10 +14,17 @@ public class MainFrm extends javax.swing.JFrame {
 
     private Sound sound;
     private BufferedImage backgroundImg;
-    
+    private boolean isSfxOn = true;
+    private boolean isBgMusicOn = true;
+
     public MainFrm() {
         initComponents();
         backgroundImg = ImageManager.getImage(ImageManager.MAIN_BACKGROUND_IMAGE);
+        sound = new Sound();
+        if(isBgMusicOn)
+            sound.soundBackground();
+        else
+            sound.stop();
     }
 
     @SuppressWarnings("unchecked")
@@ -118,7 +125,7 @@ public class MainFrm extends javax.swing.JFrame {
                         .addGap(29, 29, 29)
                         .addComponent(lblLogout, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(pnMainLayout.createSequentialGroup()
-                        .addContainerGap(195, Short.MAX_VALUE)
+                        .addContainerGap(206, Short.MAX_VALUE)
                         .addComponent(btnPlay, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(174, 174, 174)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -145,9 +152,7 @@ public class MainFrm extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(pnMain, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 11, Short.MAX_VALUE))
+            .addComponent(pnMain, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -157,68 +162,102 @@ public class MainFrm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void setIsSfxOn(boolean isSfxOn) {
+        this.isSfxOn = isSfxOn;
+    }
+
+    public void setIsBgMusicOn(boolean isBgMusicOn) {
+        this.isBgMusicOn = isBgMusicOn;
+    }
+
+    public boolean isSfxOn() {
+        return isSfxOn;
+    }
+
+    public boolean isBgMusicOn() {
+        return isBgMusicOn;
+    }
+
+    public Sound getSound() {
+        return sound;
+    }
+
     private void btnPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlayActionPerformed
-        this.dispose();
         sound.stop();
-        sound.soundButtonClick();
+        setIsBgMusicOn(false);
+        this.dispose();
+        if (isSfxOn) {
+            sound.soundButtonClick();
+        }
         ReadyFrm readyFrm = new ReadyFrm();
         readyFrm.showWindow();
     }//GEN-LAST:event_btnPlayActionPerformed
 
     private void lblRankMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblRankMouseClicked
-        sound.soundButtonClick();
+        sound.stop();
+        setIsBgMusicOn(false);
+        if (isSfxOn)
+            sound.soundButtonClick();
+        this.setVisible(false);
+        RankingFrm rank = new RankingFrm(this);
+        rank.showWindow();
     }//GEN-LAST:event_lblRankMouseClicked
 
     private void lblSettingMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSettingMouseClicked
-        sound.soundButtonClick();
+        if (isSfxOn) {
+            sound.soundButtonClick();
+        }
+        SettingFrm setting = new SettingFrm(this, rootPaneCheckingEnabled);
+        setting.setLocationRelativeTo(this);
+        setting.showDialog();
     }//GEN-LAST:event_lblSettingMouseClicked
 
     private void lblLogoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblLogoutMouseClicked
         sound.stop();
-        sound.soundButtonClick();
+        setIsBgMusicOn(false);
+        if (isSfxOn) {
+            sound.soundButtonClick();
+        }
         this.dispose();
         LoginFrm login = new LoginFrm();
         login.showWindow();
     }//GEN-LAST:event_lblLogoutMouseClicked
 
     private void lblAvartaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAvartaMouseClicked
-        this.setVisible(false);
         sound.stop();
+        setIsBgMusicOn(false);
+        this.setVisible(false);
+        if (isSfxOn) {
+            sound.soundButtonClick();
+        }
         MatchHistoryFrm history = new MatchHistoryFrm(this);
         history.showWindow();
     }//GEN-LAST:event_lblAvartaMouseClicked
-    
+
     public void draw(Graphics g) {
-        g.drawImage(backgroundImg, 0, 0, getWidth(), getHeight(),null);
+        g.drawImage(backgroundImg, 0, 0, getWidth(), getHeight(), null);
         pnMain.paintComponents(g);
     }
-    
-//    @Override
-//    public void paint(Graphics g) {
-//        super.paint(g); 
-//        draw(g);
-////        repaint();
-//    }
-    
+
     // Custom panel for painting the background
     private class CustomPanel extends javax.swing.JPanel {
+
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);  // Calls the default painting of components
             // Draw the background image
-            g.drawImage(backgroundImg, 0, 0, getWidth(), getHeight(), this);
+            g.drawImage(backgroundImg, 0, 0, getWidth(), getHeight(), null);
         }
     }
-    
+
     public void showWindow() {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
         this.setVisible(true);
-        sound = new Sound();
-        sound.soundBackground();
+        
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnPlay;
     private javax.swing.JScrollPane jScrollPane1;
