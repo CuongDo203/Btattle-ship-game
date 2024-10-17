@@ -100,31 +100,4 @@ public class Sound {
         }
     }
     
-    private void playLoop(URL url) {
-        try {
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioIn);
-
-            // Điều chỉnh âm lượng
-            FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            float volume = -20.0f; // Giảm âm lượng (dB). Mặc định 0.0f là âm lượng chuẩn
-            volumeControl.setValue(volume);
-
-            clip.addLineListener(new LineListener() {
-                @Override
-                public void update(LineEvent event) {
-                    if (event.getType() == LineEvent.Type.STOP) {
-                        clip.close();
-                    }
-                }
-
-            });
-//            audioIn.close();
-            clip.loop(Clip.LOOP_CONTINUOUSLY);
-            clip.start();
-        } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        }
-    }
 }
