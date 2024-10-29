@@ -50,15 +50,15 @@ public class Sound {
         playSound(DRAG, 0, false);
     }
     
-    private void soundMissShot() {
+    public void soundMissShot() {
         playSound(MISS, 0, false);
     }
     
-    private void soundHitShot() {
+    public void soundHitShot() {
         playSound(HIT, 0, false);
     }
     
-    private void soundShipSunk() {
+    public void soundShipSunk() {
         playSound(SHIP_SHUNK, 0, false);
     }
     

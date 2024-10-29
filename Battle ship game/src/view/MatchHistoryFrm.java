@@ -1,5 +1,6 @@
 package view;
 
+import controller.ClientControl;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -9,6 +10,8 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -18,6 +21,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import model.MatchHistory;
+import model.Ranking;
 import utils.ImageManager;
 
 public class MatchHistoryFrm extends JFrame {
@@ -29,11 +34,15 @@ public class MatchHistoryFrm extends JFrame {
     private JTable tblHistory;
     private BufferedImage backgroundImg;
     private BufferedImage nameTag;
+    private ClientControl clientCtr;
+    private Ranking playerHistory;
+    private List<MatchHistory> lsd;
 
-    public MatchHistoryFrm(MainFrm frm) {
+    public MatchHistoryFrm(MainFrm frm, ClientControl clientCtr) {
         super("History");
         this.setSize(700, 600);
         this.mainFrm = frm;
+        this.clientCtr = clientCtr;
         this.backgroundImg = ImageManager.getImage(ImageManager.HISTORY_BACKGROUND_IMAGE);
         this.nameTag = ImageManager.getImage(ImageManager.NAME_TAG);
         this.setContentPane(new CustomPanel());
@@ -53,20 +62,16 @@ public class MatchHistoryFrm extends JFrame {
             }
 
             @Override
-            public void mousePressed(MouseEvent e) {
-            }
+            public void mousePressed(MouseEvent e) {}
 
             @Override
-            public void mouseReleased(MouseEvent e) {
-            }
+            public void mouseReleased(MouseEvent e) {}
 
             @Override
-            public void mouseEntered(MouseEvent e) {
-            }
+            public void mouseEntered(MouseEvent e) {}
 
             @Override
-            public void mouseExited(MouseEvent e) {
-            }
+            public void mouseExited(MouseEvent e) {}
 
         });
         pnTop.add(btnReturn);
@@ -74,11 +79,11 @@ public class MatchHistoryFrm extends JFrame {
         pnMain = new JPanel();
         pnMain.setOpaque(false);
         pnMain.setLayout(new BoxLayout(pnMain, BoxLayout.Y_AXIS));
-        lblPlayerName = new JLabel("Thuyền trưởng");
+        lblPlayerName = new JLabel("Thuyền trưởng: ");
         lblPlayerName.setAlignmentX(CENTER_ALIGNMENT);
-        lblTotalsWin = new JLabel("Thắng: 0");
+        lblTotalsWin = new JLabel("Thắng: ");
         lblTotalsWin.setAlignmentX(CENTER_ALIGNMENT);
-        lblTotalLosses = new JLabel("Thua: 0");
+        lblTotalLosses = new JLabel("Thua: ");
         lblTotalLosses.setAlignmentX(CENTER_ALIGNMENT);
         pnMain.add(lblPlayerName);
         pnMain.add(lblTotalsWin);
@@ -111,11 +116,56 @@ public class MatchHistoryFrm extends JFrame {
         mainFrm.setVisible(true);
     }
 
+    public void setPlayerHistory(Ranking playerHistory) {
+        this.playerHistory = playerHistory;
+    }
+
+    public void setLsd(List<MatchHistory> lsd) {
+        this.lsd = lsd;
+    }
+
+    public void showTblPlayerHistory() {
+        if(lsd == null) return;
+        DefaultTableModel dtm = (DefaultTableModel) tblHistory.getModel();
+        dtm.setRowCount(0);
+        for(MatchHistory h : lsd) {
+            Vector<Object> row = new Vector<>();
+            row.add(h.getStartTime());
+            row.add(h.getOpponentUserName());
+            row.add(h.getMatchResult());
+            dtm.addRow(row);
+        }
+    }
+    
     public void showWindow() {
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
         this.setVisible(true);
+    }
+
+    public JLabel getLblPlayerName() {
+        return lblPlayerName;
+    }
+
+    public void setLblPlayerName(JLabel lblPlayerName) {
+        this.lblPlayerName = lblPlayerName;
+    }
+
+    public JLabel getLblTotalsWin() {
+        return lblTotalsWin;
+    }
+
+    public JLabel getLblTotalLosses() {
+        return lblTotalLosses;
+    }
+
+    public void setLblTotalsWin(JLabel lblTotalsWin) {
+        this.lblTotalsWin = lblTotalsWin;
+    }
+
+    public void setLblTotalLosses(JLabel lblTotalLosses) {
+        this.lblTotalLosses = lblTotalLosses;
     }
 
     private class CustomPanel extends javax.swing.JPanel {

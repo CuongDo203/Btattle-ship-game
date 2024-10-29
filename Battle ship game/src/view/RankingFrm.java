@@ -1,5 +1,6 @@
 package view;
 
+import dto.PlayerInfoDTO;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -10,6 +11,8 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -31,6 +34,7 @@ public class RankingFrm extends JFrame{
     private BufferedImage backgroundImg;
     private BufferedImage rankBg;
     private JTable tblRank;
+    
     
     public RankingFrm(MainFrm frm) {
         super("Bảng xếp hạng");
@@ -99,9 +103,26 @@ public class RankingFrm extends JFrame{
     }
     
     private void lblReturnActionPerformed() {
+        sound.soundButtonClick();
         this.dispose();
         sound.soundButtonClick();
         mainFrm.setVisible(true);
+    }
+    
+    public void showRankings(List<PlayerInfoDTO> ranking) {
+        DefaultTableModel dtm = (DefaultTableModel) tblRank.getModel();
+        dtm.setRowCount(0);
+        if(ranking!=null) {
+            for(int i = 0; i < ranking.size(); ++i) {
+                Vector<Object> row = new Vector<>();
+                row.add(i+1);
+                row.add(ranking.get(i).getUsername());
+                row.add(ranking.get(i).getTotalWins());
+                row.add(ranking.get(i).getTotalLosese());
+                row.add(ranking.get(i).getTotalPoint());
+                dtm.addRow(row);
+            }
+        }
     }
     
     public void showWindow() {

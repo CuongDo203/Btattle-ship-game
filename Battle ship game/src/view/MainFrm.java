@@ -1,8 +1,20 @@
 package view;
 
+import controller.ClientControl;
+import dto.ClientMessage;
+import dto.PlayerInfoDTO;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.Vector;
+import javax.swing.JLabel;
+import javax.swing.JTable;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import model.Player;
 import utils.ImageManager;
 import utils.Sound;
 
@@ -16,15 +28,22 @@ public class MainFrm extends javax.swing.JFrame {
     private BufferedImage backgroundImg;
     private boolean isSfxOn = true;
     private boolean isBgMusicOn = true;
+    private ClientControl clientCtr;
+    private List<PlayerInfoDTO> listPlayer;
+    private LoadingSpinner spinner;
+    private Player player;
 
-    public MainFrm() {
+    public MainFrm(Player player, ClientControl clientCtr) {
         initComponents();
+        this.player = player;
+        this.clientCtr = clientCtr;
         backgroundImg = ImageManager.getImage(ImageManager.MAIN_BACKGROUND_IMAGE);
         sound = new Sound();
-        if(isBgMusicOn)
+        if (isBgMusicOn) {
             sound.soundBackground();
-        else
+        } else {
             sound.stop();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -34,7 +53,7 @@ public class MainFrm extends javax.swing.JFrame {
         pnMain = pnMain = new CustomPanel();
         lblAvarta = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblListUser = new javax.swing.JTable();
         lblRank = new javax.swing.JLabel();
         lblSetting = new javax.swing.JLabel();
         lblLogout = new javax.swing.JLabel();
@@ -54,7 +73,7 @@ public class MainFrm extends javax.swing.JFrame {
             }
         });
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblListUser.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -70,7 +89,7 @@ public class MainFrm extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tblListUser);
 
         lblRank.setBackground(new java.awt.Color(255, 255, 255));
         lblRank.setForeground(new java.awt.Color(255, 255, 255));
@@ -162,6 +181,56 @@ public class MainFrm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void showListPlayer(List<PlayerInfoDTO> listPlayer) {
+        DefaultTableModel dtm = (DefaultTableModel) tblListUser.getModel();
+        dtm.setRowCount(0);
+        listPlayer.sort((p1, p2) -> {
+            if (p1.getStatus().equals("online") && !p2.getStatus().equals("online")) {
+                return -1;
+            } else if (p1.getStatus().equals("playing") && p2.getStatus().equals("offline")) {
+                return -1;
+            } else if (p1.getStatus().equals("offline") && !p2.getStatus().equals("offline")) {
+                return 1;
+            }
+            return 0;
+        });
+        setListPlayer(listPlayer);
+        for (PlayerInfoDTO p : listPlayer) {
+            Vector<Object> row = new Vector<>();
+            row.add(p.getUsername());
+            row.add(p.getStatus());
+            row.add(p.getTotalPoint());
+            dtm.addRow(row);
+        }
+
+        // Custom rendering for the table to apply color based on the status
+        tblListUser.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                String status = (String) table.getValueAt(row, 1); // Assuming column 1 is the status column
+
+                if (status.equals("online")) {
+                    cell.setForeground(Color.GREEN);
+                } else if (status.equals("playing")) {
+                    cell.setForeground(Color.BLUE);
+                } else if (status.equals("offline")) {
+                    cell.setForeground(Color.GRAY);
+                }
+
+                return cell;
+            }
+        });
+    }
+
+    public JLabel getLblAvarta() {
+        return lblAvarta;
+    }
+
+    public void setClientCtr(ClientControl clientCtr) {
+        this.clientCtr = clientCtr;
+    }
+
     public void setIsSfxOn(boolean isSfxOn) {
         this.isSfxOn = isSfxOn;
     }
@@ -182,25 +251,52 @@ public class MainFrm extends javax.swing.JFrame {
         return sound;
     }
 
+    public List<PlayerInfoDTO> getListPlayer() {
+        return listPlayer;
+    }
+
+    public void setListPlayer(List<PlayerInfoDTO> listPlayer) {
+        this.listPlayer = listPlayer;
+    }
+
+    public LoadingSpinner getSpinner() {
+        return spinner;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
     private void btnPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlayActionPerformed
         sound.stop();
         setIsBgMusicOn(false);
-        this.dispose();
+//        this.dispose();
         if (isSfxOn) {
             sound.soundButtonClick();
         }
-        ReadyFrm readyFrm = new ReadyFrm();
-        readyFrm.showWindow();
+//        ReadyFrm readyFrm = new ReadyFrm();
+//        readyFrm.showWindow();
+        
+        ClientMessage clientMess = new ClientMessage();
+        clientMess.setCommand(ClientMessage.FIND_RANDOM_PLAYER);
+        System.out.println("Find a random player: "+ clientMess.getCommand());
+        clientCtr.sendMessage(clientMess);
+        spinner = new LoadingSpinner(this, clientCtr, "Đang tìm kiếm đối thủ");
+        spinner.showWindow();
     }//GEN-LAST:event_btnPlayActionPerformed
 
     private void lblRankMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblRankMouseClicked
         sound.stop();
         setIsBgMusicOn(false);
-        if (isSfxOn)
+        if (isSfxOn) {
             sound.soundButtonClick();
-        this.setVisible(false);
-        RankingFrm rank = new RankingFrm(this);
-        rank.showWindow();
+        }
+//        this.setVisible(false);
+//        RankingFrm rank = new RankingFrm(this);
+//        rank.showWindow();
+        ClientMessage clientMess = new ClientMessage();
+        clientMess.setCommand(ClientMessage.GET_RANKING);
+        clientCtr.sendMessage(clientMess);
     }//GEN-LAST:event_lblRankMouseClicked
 
     private void lblSettingMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSettingMouseClicked
@@ -218,20 +314,30 @@ public class MainFrm extends javax.swing.JFrame {
         if (isSfxOn) {
             sound.soundButtonClick();
         }
-        this.dispose();
-        LoginFrm login = new LoginFrm();
-        login.showWindow();
+        ClientMessage clientMess = new ClientMessage();
+        clientMess.setCommand(ClientMessage.LOGOUT);
+        String username = player.getUsername();
+        clientMess.setUsername(username);
+        clientCtr.sendMessage(clientMess);
+//        this.dispose();
+//        LoginFrm login = new LoginFrm();
+//        login.showWindow();
     }//GEN-LAST:event_lblLogoutMouseClicked
 
     private void lblAvartaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAvartaMouseClicked
         sound.stop();
         setIsBgMusicOn(false);
-        this.setVisible(false);
+        
         if (isSfxOn) {
             sound.soundButtonClick();
         }
-        MatchHistoryFrm history = new MatchHistoryFrm(this);
-        history.showWindow();
+        ClientMessage clientMess = new ClientMessage();
+        clientMess.setCommand(ClientMessage.SHOW_MATCH_HISTORY);
+        clientMess.setPlayerID(player.getId());
+        clientCtr.sendMessage(clientMess);
+//        this.setVisible(false);
+//        MatchHistoryFrm history = new MatchHistoryFrm(this);
+//        history.showWindow();
     }//GEN-LAST:event_lblAvartaMouseClicked
 
     public void draw(Graphics g) {
@@ -255,17 +361,17 @@ public class MainFrm extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
         this.setResizable(false);
         this.setVisible(true);
-        
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnPlay;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel lblAvarta;
     private javax.swing.JLabel lblLogout;
     private javax.swing.JLabel lblRank;
     private javax.swing.JLabel lblSetting;
     private javax.swing.JPanel pnMain;
+    private javax.swing.JTable tblListUser;
     // End of variables declaration//GEN-END:variables
 }

@@ -1,13 +1,20 @@
 package view;
 
+import controller.ClientControl;
+import dto.ClientMessage;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import utils.Sound;
 
 public class RegisterFrm extends javax.swing.JFrame {
 
     private Sound sound;
+    private ClientControl clientCtr;
     
-    public RegisterFrm() {
+    public RegisterFrm(ClientControl clientCtr) {
         initComponents();
+        this.clientCtr = clientCtr;
     }
 
     /**
@@ -83,7 +90,7 @@ public class RegisterFrm extends javax.swing.JFrame {
         });
         getContentPane().add(btnDangKy, new org.netbeans.lib.awtextra.AbsoluteConstraints(162, 260, 127, 36));
 
-        jLabel5.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel5.setForeground(new java.awt.Color(102, 102, 102));
         jLabel5.setText("Đã có tài khoản?");
         getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 310, 98, 40));
 
@@ -104,7 +111,7 @@ public class RegisterFrm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtRetypedPassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtRetypedPassActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_txtRetypedPassActionPerformed
 
     private void linkDangNhapMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_linkDangNhapMouseClicked
@@ -116,7 +123,49 @@ public class RegisterFrm extends javax.swing.JFrame {
 
     private void btnDangKyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDangKyActionPerformed
         sound.soundButtonClick();
+        String username = txtUserName.getText();
+        String password = String.valueOf(txtPass.getPassword());
+        String retypedPass = String.valueOf(txtRetypedPass.getPassword());
+        String email = txtEmail.getText();
+        if(username.isBlank()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập vào username!");
+            return;
+        }
+        if(password.isBlank()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập vào password!");
+            return;
+        }
+        if(!password.equals(retypedPass)) {
+            JOptionPane.showMessageDialog(this, "Mật khẩu và mật khẩu nhập lại không khớp!");
+            return;
+        }
+        if(email.isBlank()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập vào email!");
+            return;
+        }
+        ClientMessage clientMess = new ClientMessage();
+        clientMess.setCommand(ClientMessage.REGISTER);
+        clientMess.setUsername(username);
+        clientMess.setPassword(password);
+        clientMess.setEmail(email);
+        clientCtr.sendMessage(clientMess);
     }//GEN-LAST:event_btnDangKyActionPerformed
+
+    public JTextField getTxtEmail() {
+        return txtEmail;
+    }
+
+    public JPasswordField getTxtPass() {
+        return txtPass;
+    }
+
+    public JPasswordField getTxtRetypedPass() {
+        return txtRetypedPass;
+    }
+
+    public JTextField getTxtUserName() {
+        return txtUserName;
+    }
 
     public void showWindow() {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);

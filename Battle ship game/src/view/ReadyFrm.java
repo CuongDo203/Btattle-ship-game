@@ -1,5 +1,7 @@
 package view;
 
+import controller.ClientControl;
+import dto.ClientMessage;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -15,11 +17,13 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import model.Player;
 import utils.ImageManager;
 import utils.Sound;
 
 public class ReadyFrm extends JFrame {
     
+    private Player player;
     private BufferedImage backgroundImg;
     private BattleShipGrid grid;
     private List<Ship> ships;
@@ -29,8 +33,11 @@ public class ReadyFrm extends JFrame {
     private JButton btnRandom;
     private Sound sound;
     private String[] images = {ImageManager.SHIP_SIZE_5, ImageManager.SHIP_SIZE_4, ImageManager.SHIP_SIZE_3_1, ImageManager.SHIP_SIZE_3_2, ImageManager.SHIP_SIZE_2};
-
-    public ReadyFrm() {
+    private ClientControl clientCtr;
+    
+    public ReadyFrm(Player player, ClientControl clientCtr) {
+        this.player = player;
+        this.clientCtr = clientCtr;
         setTitle("Battleship Game");
         setLayout(new BorderLayout());
         setSize(800, 700);
@@ -46,7 +53,11 @@ public class ReadyFrm extends JFrame {
         btnReturn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                btnActionPerformed();
+                int rs =  JOptionPane.showConfirmDialog(null, "Bạn có thực sự muốn thoát?", 
+                        "Xác nhận thoát", JOptionPane.YES_NO_OPTION);
+                if(rs == JOptionPane.YES_OPTION) {
+                    btnReturnActionPerformed();
+                }
             }
 
         });
@@ -113,7 +124,7 @@ public class ReadyFrm extends JFrame {
         btnReady.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                btnReaddyactionPerformed();
+                btnReadyactionPerformed();
             }
         });
         this.add(pnBottom, BorderLayout.SOUTH);
@@ -135,6 +146,10 @@ public class ReadyFrm extends JFrame {
             }
         }
         return true;
+    }
+
+    public List<Ship> getShips() {
+        return ships;
     }
 
     private void randomizeShips() {
@@ -167,7 +182,7 @@ public class ReadyFrm extends JFrame {
         }
     }
 
-    private void btnReaddyactionPerformed() {
+    private void btnReadyactionPerformed() {
         if (!isAllShipPlaced()) {
             JOptionPane.showMessageDialog(null,
                     "Vui lòng xếp thuyền vào các ô trên lưới", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -189,16 +204,39 @@ public class ReadyFrm extends JFrame {
         }
         grid.setGridState(gridState);
         sound.soundButtonClick();
-        ReadyFrm.this.dispose();
-
-        BattleViewFrm battleView = new BattleViewFrm(ships);
-        battleView.showWindow();
+        ClientMessage clientMess = new ClientMessage();
+        clientMess.setCommand(ClientMessage.PLACED_SHIPS);
+        clientMess.setMatrix(gridState);
+        clientCtr.sendMessage(clientMess);
     }
 
-    private void btnActionPerformed() {
-        this.dispose();
-        MainFrm main = new MainFrm();
-        main.showWindow();
+    public JButton getBtnReady() {
+        return btnReady;
+    }
+
+    public void setBtnReady(JButton btnReady) {
+        this.btnReady = btnReady;
+    }
+
+    public JButton getBtnRandom() {
+        return btnRandom;
+    }
+
+    public void setBtnRandom(JButton btnRandom) {
+        this.btnRandom = btnRandom;
+    }
+
+    private void btnReturnActionPerformed() {
+//        this.dispose();
+        System.out.println("Người chơi thoát giữa chừng");
+        ClientMessage clientMess = new ClientMessage();
+        clientMess.setCommand(ClientMessage.PLAYER_OUT);
+        clientMess.setUsername(player.getUsername());
+        clientMess.setOutWhilePlaying(false);
+        System.out.println("Gọi đến server với message PLAYER_OUT");
+        clientCtr.sendMessage(clientMess);
+//        MainFrm main = new MainFrm(player, clientCtr);
+//        main.showWindow();
     }
 
     public void showWindow() {
