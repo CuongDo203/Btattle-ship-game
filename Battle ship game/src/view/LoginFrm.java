@@ -1,5 +1,8 @@
 package view;
 
+import controller.ClientControl;
+import dto.ClientMessage;
+import dto.LoginDTO;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import utils.ImageManager;
@@ -9,11 +12,14 @@ public class LoginFrm extends javax.swing.JFrame {
 
     private Sound sound;
     private BufferedImage backgroundImg;
+    private ClientControl clientCtr;
+    ClientMessage clientMessage;
 
     public LoginFrm() {
         backgroundImg = ImageManager.getImage(ImageManager.LOGIN_IMAGE);
-        
         initComponents();
+        clientCtr = new ClientControl(this);
+//        clientCtr.setLoginFrm(this);
     }
 
     /**
@@ -120,16 +126,24 @@ public class LoginFrm extends javax.swing.JFrame {
         this.dispose();
         sound.soundButtonClick();
 //        sound.stop();
-        RegisterFrm frm = new RegisterFrm();
+        RegisterFrm frm = new RegisterFrm(clientCtr);
         frm.showWindow();
     }//GEN-LAST:event_linkDangKyMouseClicked
 
     private void btnDangNhapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDangNhapActionPerformed
+        String username = txtUsername.getText();
+        String pass = String.valueOf(txtPass.getPassword());
+        
+        clientMessage = new ClientMessage();
+        clientMessage.setCommand(ClientMessage.LOGIN);
+        clientMessage.setUsername(username);
+        clientMessage.setPassword(pass);
+        clientCtr.sendMessage(clientMessage);
         sound.stop();
         sound.soundButtonClick();
-        this.dispose();
-        MainFrm mainFrm = new MainFrm();
-        mainFrm.showWindow();
+//        this.dispose();
+//        MainFrm mainFrm = new MainFrm();
+//        mainFrm.showWindow();
     }//GEN-LAST:event_btnDangNhapActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
